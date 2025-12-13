@@ -4,6 +4,7 @@ import (
   "encoding/json"
   "net/http"
   "github.com/lim-zy/CVWO-web-forum/internal/handlers/users"
+  "github.com/lim-zy/CVWO-web-forum/internal/handlers/root"
   "github.com/go-chi/chi/v5"
 )
 
@@ -14,5 +15,6 @@ func GetRoutes() func(r chi.Router) {
       w.Header().Set("Content-Type", "application/json")
       json.NewEncoder(w).Encode(response)
     })
+    r.Get("/", root.BasicHandler)
   }
 }
