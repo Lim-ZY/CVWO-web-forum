@@ -13,7 +13,7 @@ type Topic struct {
 type Post struct {
   ID              int     `json:"id"`
   Name            string  `json:"name"`
-  CreationTime    string  `json:"creation_time"`
+  CreationTime    time.Time  `json:"creation_time"`
   CreatedBy       string  `json:"created_by"`
   RelatedTopicID  int     `json:"related_topic_id"`
   Content         string  `json:"content"`
@@ -22,7 +22,7 @@ type Post struct {
 
 type Comment struct {
   ID              int     `json:"id"`
-  CreationTime    string  `json:"creation_time"`
+  CreationTime    time.Time  `json:"creation_time"`
   CreatedBy       string  `json:"created_by"`
   RelatedPostID   int     `json:"related_post_id"`
   Content         string  `json:"content"`

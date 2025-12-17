@@ -22,28 +22,13 @@ func GetRoutes(db *pg.Database) func(r chi.Router) {
       json.NewEncoder(w).Encode(response)
     })
     r.Get("/", root.BasicHandler)
-    r.Get("/topics", func(w http.ResponseWriter, req *http.Request) {
-      response, _ := topicHandler.List(w, req)
-      w.Header().Set("Content-Type", "application/json")
-      json.NewEncoder(w).Encode(response)
-    })
-    r.Post("/topics", func(w http.ResponseWriter, req *http.Request) {
-      response, _ := topicHandler.Create(w, req)
-      w.Header().Set("Content-Type", "application/json")
-      json.NewEncoder(w).Encode(response)
-    })
-    r.Put("/topics/{id}", func(w http.ResponseWriter, req *http.Request) {
-      response, _ := topicHandler.UpdateByID(w, req)
-      w.Header().Set("Content-Type", "application/json")
-      json.NewEncoder(w).Encode(response)
-    })
-    r.Delete("/topics/{id}", func(w http.ResponseWriter, req *http.Request) {
-      topicHandler.DeleteByID(w, req)
-      w.Header().Set("Content-Type", "application/json")
-    })
+    r.Get("/topics", topicHandler.List)
+    r.Post("/topics", topicHandler.Create)
+    r.Put("/topics/{id}", topicHandler.UpdateByID)
+    r.Delete("/topics/{id}", topicHandler.DeleteByID)
     r.Get("/topics/{id}", posts.List)
     r.Post("/topics/{id}", posts.Create)
-    //r.Put("/topics/{id}", posts.UpdateByID)
-    //r.Delete("/topics/{id}", posts.DeleteByID)
+    r.Put("/topics/{id}/{postID}", posts.UpdateByID)
+    r.Delete("/topics/{id}/{postID}", posts.DeleteByID)
   }
 }

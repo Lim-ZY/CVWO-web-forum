@@ -17,7 +17,7 @@ type TopicHandler struct {
   DB *pg.Database
 }
 
-func (h *TopicHandler) Create(w http.ResponseWriter, r *http.Request) (*api.Response, error) {
+func (h *TopicHandler) Create(w http.ResponseWriter, r *http.Request) {
   var body struct {
     Name            string  `json:"name"`
     CreatedBy       string  `json:"created_by"`
@@ -26,13 +26,14 @@ func (h *TopicHandler) Create(w http.ResponseWriter, r *http.Request) (*api.Resp
 
   if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
     w.WriteHeader(http.StatusBadRequest)
-    return nil, err
+    return
   }
 
   sg, err := time.LoadLocation("Asia/Singapore")
   if err != nil {
     fmt.Printf("Failed to load timezone: %v\n", err)
-    return nil, err
+    w.WriteHeader(http.StatusInternalServerError)
+    return
   }
   creationTime := time.Now().In(sg)
 
@@ -47,43 +48,49 @@ func (h *TopicHandler) Create(w http.ResponseWriter, r *http.Request) (*api.Resp
   if err != nil {
     fmt.Printf("Failed to insert: %v\n", err)
     w.WriteHeader(http.StatusInternalServerError)
-    return nil, err
+    return
   }
 
   res, err := json.Marshal(topic)
   if err != nil {
     fmt.Println("Failed to marshal: %w\n", err)
     w.WriteHeader(http.StatusInternalServerError)
-    return nil, err
+    return
   }
 
-  w.WriteHeader(http.StatusCreated)
-  return &api.Response{
+  response := &api.Response{
     Payload: api.Payload{
       Data: res,
     },
-  }, nil
+  }
+  w.WriteHeader(http.StatusCreated)
+  w.Header().Set("Content-Type", "application/json")
+  json.NewEncoder(w).Encode(response)
 }
 
-func (h *TopicHandler) List(w http.ResponseWriter, r *http.Request) (*api.Response, error) {
+func (h *TopicHandler) List(w http.ResponseWriter, r *http.Request) {
   topics, err := h.DB.GetTopics()
   if err != nil {
-    return nil, fmt.Errorf("Failed to get topics: %w", err)
+    fmt.Println("Failed to get topics: %w", err)
+    return
   }
 
   jsonData, err := json.Marshal(topics)
   if err != nil {
-    return nil, fmt.Errorf("Failed to marshal: %w", err)
+    fmt.Println("Failed to marshal: %w", err)
+    return
   }
 
-  return &api.Response{
+  response := &api.Response{
     Payload: api.Payload{
       Data: jsonData,
     },
-  }, nil
+  }
+  w.Header().Set("Content-Type", "application/json")
+  json.NewEncoder(w).Encode(response)
 }
 
-func (h *TopicHandler) UpdateByID(w http.ResponseWriter, r *http.Request) (*api.Response, error) {
+func (h *TopicHandler) UpdateByID(w http.ResponseWriter, r *http.Request) {
   idParam := chi.URLParam(r, "id")
   id, _ := strconv.Atoi(idParam)
 
@@ -93,7 +100,7 @@ func (h *TopicHandler) UpdateByID(w http.ResponseWriter, r *http.Request) (*api.
 
   if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
     w.WriteHeader(http.StatusBadRequest)
-    return nil, err
+    return
   }
 
   topic := model.Topic{
@@ -103,32 +110,33 @@ func (h *TopicHandler) UpdateByID(w http.ResponseWriter, r *http.Request) (*api.
 
   updatedTopic, err := h.DB.UpdateTopic(topic)
   if err != nil {
-    fmt.Printf("Failed to insert: %v\n", err)
+    fmt.Println("Failed to insert: %v", err)
     w.WriteHeader(http.StatusInternalServerError)
-    return nil, err
+    return
   }
 
   res, err := json.Marshal(updatedTopic)
   if err != nil {
-    fmt.Println("Failed to marshal: %w\n", err)
+    fmt.Println("Failed to marshal: %w", err)
     w.WriteHeader(http.StatusInternalServerError)
-    return nil, err
+    return
   }
 
-  return &api.Response{
+  response := &api.Response{
     Payload: api.Payload{
       Data: res,
     },
-  }, nil
+  }
+  w.Header().Set("Content-Type", "application/json")
+  json.NewEncoder(w).Encode(response)
 }
 
-func (h *TopicHandler) DeleteByID(w http.ResponseWriter, r *http.Request) error {
+func (h *TopicHandler) DeleteByID(w http.ResponseWriter, r *http.Request) {
   idParam := chi.URLParam(r, "id")
   id, _ := strconv.Atoi(idParam)
   err := h.DB.DeleteTopicByID(id)
   if err != nil {
     w.WriteHeader(http.StatusBadRequest)
-    return err
+    return
   }
-  return nil
 }
