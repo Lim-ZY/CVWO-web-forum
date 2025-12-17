@@ -107,7 +107,7 @@ func (db *Database) GetPosts(topicID int) ([]model.Post, error) {
   q := `SELECT * FROM posts WHERE related_topic_id = $1`
   rows, err := db.Pool.Query(db.Ctx, q, topicID)
   if err != nil {
-    return nil, fmt.Errorf("Error querying topics: %w", err)
+    return nil, fmt.Errorf("Error querying posts: %w", err)
   }
   defer rows.Close()
   
@@ -125,6 +125,16 @@ func (db *Database) GetPosts(topicID int) ([]model.Post, error) {
     return nil, fmt.Errorf("Error iterating rows: %w", err)
   }
   return posts, nil
+}
+
+func (db *Database) GetPostByID(postID int) (*model.Post, error) {
+  q := `SELECT * FROM posts WHERE id = $1`
+  var p model.Post
+  err := db.Pool.QueryRow(db.Ctx, q, postID).Scan(&p.ID, &p.Name, &p.CreationTime, &p.CreatedBy, &p.RelatedTopicID, &p.Content, &p.Votes)
+  if err != nil {
+    return nil, fmt.Errorf("Error querying post: %w", err)
+  }
+  return &p, nil
 }
 
 func (db *Database) InsertPost(post model.Post) error {
@@ -174,4 +184,77 @@ func (db *Database) FindPostByID(postID int) (*model.Post, error) {
     return nil, fmt.Errorf("No post found: %w", err)
   }
   return &p, nil
+}
+
+func (db *Database) GetComments(postID int) ([]model.Comment, error) {
+  q := `SELECT * FROM comments WHERE related_post_id = $1`
+  rows, err := db.Pool.Query(db.Ctx, q, postID)
+  if err != nil {
+    return nil, fmt.Errorf("Error querying comments: %w", err)
+  }
+  defer rows.Close()
+  
+  comments := []model.Comment{}
+  for rows.Next() {
+    var c model.Comment
+    err := rows.Scan(&c.ID, &c.CreationTime, &c.CreatedBy, &c.RelatedPostID, &c.Content, &c.Votes)
+    if err != nil {
+      return nil, fmt.Errorf("Error scanning rows: %w", err)
+    }
+    comments = append(comments, c)
+  }
+
+  if err = rows.Err(); err != nil {
+    return nil, fmt.Errorf("Error iterating rows: %w", err)
+  }
+  return comments, nil
+}
+
+func (db *Database) InsertComment(comment model.Comment) error {
+  q := `INSERT INTO comments (creation_time, created_by, related_post_id, content) 
+        VALUES ($1, $2, $3, $4) 
+        RETURNING id`
+  err := db.Pool.QueryRow(db.Ctx, q, comment.CreationTime, comment.CreatedBy, comment.RelatedPostID, comment.Content).Scan(&comment.ID)
+  if err != nil {
+    return fmt.Errorf("Error inserting comment: %w", err)
+  }
+  return nil
+}
+
+func (db *Database) UpdateComment(comment model.Comment) (*model.Comment, error) {
+  c, err := db.FindCommentByID(comment.ID)
+  if err != nil {
+    return nil, fmt.Errorf("No comment found: %w", err)
+  }
+
+  q := `UPDATE comments 
+        SET 
+            content = $1
+        WHERE
+            id = $2`
+  _, err = db.Pool.Exec(db.Ctx, q, comment.Content, comment.ID)
+  if err != nil {
+    return nil, fmt.Errorf("Error updating comment: %w", err)
+  }
+  c.Content = comment.Content
+  return c, nil
+}
+
+func (db *Database) DeleteCommentByID(commentID int) error {
+  q := `DELETE FROM comments WHERE id = $1`
+  _, err := db.Pool.Exec(db.Ctx, q, commentID)
+  if err != nil {
+    return fmt.Errorf("Error deleting comment: %w", err)
+  }
+  return nil
+}
+
+func (db *Database) FindCommentByID(commentID int) (*model.Comment, error) {
+  q := `SELECT * FROM comments WHERE id = $1`
+  var c model.Comment
+  err := db.Pool.QueryRow(db.Ctx, q, commentID).Scan(&c.ID, &c.CreationTime, &c.CreatedBy, &c.RelatedPostID, &c.Content, &c.Votes)
+  if err != nil {
+    return nil, fmt.Errorf("No comment found: %w", err)
+  }
+  return &c, nil
 }
