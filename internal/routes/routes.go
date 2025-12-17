@@ -14,6 +14,7 @@ import (
 
 func GetRoutes(db *pg.Database) func(r chi.Router) {
   topicHandler := &topics.TopicHandler{DB: db}
+  postHandler := &posts.PostHandler{DB: db}
 
   return func(r chi.Router) {
     r.Get("/users", func(w http.ResponseWriter, req *http.Request) {
@@ -26,9 +27,9 @@ func GetRoutes(db *pg.Database) func(r chi.Router) {
     r.Post("/topics", topicHandler.Create)
     r.Put("/topics/{id}", topicHandler.UpdateByID)
     r.Delete("/topics/{id}", topicHandler.DeleteByID)
-    r.Get("/topics/{id}", posts.List)
-    r.Post("/topics/{id}", posts.Create)
-    r.Put("/topics/{id}/{postID}", posts.UpdateByID)
-    r.Delete("/topics/{id}/{postID}", posts.DeleteByID)
+    r.Get("/topics/{id}", postHandler.List)
+    r.Post("/topics/{id}", postHandler.Create)
+    r.Put("/topics/{id}/{postID}", postHandler.UpdateByID)
+    r.Delete("/topics/{id}/{postID}", postHandler.DeleteByID)
   }
 }

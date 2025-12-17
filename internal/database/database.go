@@ -103,3 +103,75 @@ func (db *Database) FindTopicByID(id int) (*model.Topic, error) {
   return &t, nil
 }
 
+func (db *Database) GetPosts(topicID int) ([]model.Post, error) {
+  q := `SELECT * FROM posts WHERE related_topic_id = $1`
+  rows, err := db.Pool.Query(db.Ctx, q, topicID)
+  if err != nil {
+    return nil, fmt.Errorf("Error querying topics: %w", err)
+  }
+  defer rows.Close()
+  
+  posts := []model.Post{}
+  for rows.Next() {
+    var p model.Post
+    err := rows.Scan(&p.ID, &p.Name, &p.CreationTime, &p.CreatedBy, &p.RelatedTopicID, &p.Content, &p.Votes)
+    if err != nil {
+      return nil, fmt.Errorf("Error scanning rows: %w", err)
+    }
+    posts = append(posts, p)
+  }
+
+  if err = rows.Err(); err != nil {
+    return nil, fmt.Errorf("Error iterating rows: %w", err)
+  }
+  return posts, nil
+}
+
+func (db *Database) InsertPost(post model.Post) error {
+  q := `INSERT INTO posts (name, creation_time, created_by, related_topic_id, content) 
+        VALUES ($1, $2, $3, $4, $5) 
+        RETURNING id`
+  err := db.Pool.QueryRow(db.Ctx, q, post.Name, post.CreationTime, post.CreatedBy, post.RelatedTopicID, post.Content).Scan(&post.ID)
+  if err != nil {
+    return fmt.Errorf("Error inserting post: %w", err)
+  }
+  return nil
+}
+
+func (db *Database) UpdatePost(post model.Post) (*model.Post, error) {
+  p, err := db.FindPostByID(post.ID)
+  if err != nil {
+    return nil, fmt.Errorf("No post found: %w", err)
+  }
+
+  q := `UPDATE posts 
+        SET 
+            content = $1
+        WHERE
+            id = $2`
+  _, err = db.Pool.Exec(db.Ctx, q, post.Content, post.ID)
+  if err != nil {
+    return nil, fmt.Errorf("Error updating post: %w", err)
+  }
+  p.Content = post.Content
+  return p, nil
+}
+
+func (db *Database) DeletePostByID(postID int) error {
+  q := `DELETE FROM posts WHERE id = $1`
+  _, err := db.Pool.Exec(db.Ctx, q, postID)
+  if err != nil {
+    return fmt.Errorf("Error deleting post: %w", err)
+  }
+  return nil
+}
+
+func (db *Database) FindPostByID(postID int) (*model.Post, error) {
+  q := `SELECT * FROM posts WHERE id = $1`
+  var p model.Post
+  err := db.Pool.QueryRow(db.Ctx, q, postID).Scan(&p.ID, &p.Name, &p.CreationTime, &p.CreatedBy, &p.RelatedTopicID, &p.Content, &p.Votes)
+  if err != nil {
+    return nil, fmt.Errorf("No post found: %w", err)
+  }
+  return &p, nil
+}
