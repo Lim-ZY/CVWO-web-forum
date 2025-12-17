@@ -1,0 +1,5 @@
+.PHONY: migrate
+
+migrate:
+  migrate -source file://internal/database \
+          -database postgres://myuser:mypassword@localhost/mydatabase?sslmode=disable up

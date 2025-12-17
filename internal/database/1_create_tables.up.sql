@@ -1,0 +1,26 @@
+CREATE TABLE IF NOT EXISTS topics (
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL,
+  creation_time TIMESTAMP NOT NULL,
+  created_by TEXT NOT NULL,
+  description TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS posts (
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL,
+  creation_time TIMESTAMP NOT NULL,
+  created_by TEXT NOT NULL,
+  related_topic_id INTEGER NOT NULL REFERENCES topics (id) ON DELETE CASCADE,
+  content TEXT NOT NULL,
+  votes INTEGER DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS comments (
+  id SERIAL PRIMARY KEY,
+  creation_time TIMESTAMP NOT NULL,
+  created_by TEXT NOT NULL,
+  related_post_id INTEGER NOT NULL REFERENCES posts (id) ON DELETE CASCADE,
+  content TEXT NOT NULL,
+  votes INTEGER DEFAULT 0
+);

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+  "context"
 
 	"github.com/lim-zy/CVWO-web-forum/internal/api"
 	users "github.com/lim-zy/CVWO-web-forum/internal/dataaccess"
@@ -21,7 +22,7 @@ const (
 )
 
 func HandleList(w http.ResponseWriter, r *http.Request) (*api.Response, error) {
-	db, err := database.GetDB()
+	db, err := database.GetDB(context.Background())
 
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf(ErrRetrieveDatabase, ListUsers))
