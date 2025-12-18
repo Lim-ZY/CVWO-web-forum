@@ -52,6 +52,7 @@ func (h *ViewHandler) Get(w http.ResponseWriter, r *http.Request) {
     Payload: api.Payload{
       Data: jsonData,
     },
+    Messages: []string{fmt.Sprintf("Get view (post: %s) successful", view.PostName)},
   }
   w.Header().Set("Content-Type", "application/json")
   json.NewEncoder(w).Encode(response)
@@ -104,6 +105,7 @@ func (h *ViewHandler) AddComment(w http.ResponseWriter, r *http.Request) {
     Payload: api.Payload{
       Data: res,
     },
+    Messages: []string{fmt.Sprintf("Add comment to post %d successful", comment.RelatedPostID)},
   }
   w.WriteHeader(http.StatusCreated)
   w.Header().Set("Content-Type", "application/json")
@@ -146,6 +148,7 @@ func (h *ViewHandler) UpdateCommentByID(w http.ResponseWriter, r *http.Request) 
     Payload: api.Payload{
       Data: res,
     },
+    Messages: []string{fmt.Sprintf("Update comment to post %d successful", updatedComment.RelatedPostID)},
   }
   w.Header().Set("Content-Type", "application/json")
   json.NewEncoder(w).Encode(response)
@@ -159,4 +162,9 @@ func (h *ViewHandler) DeleteCommentByID(w http.ResponseWriter, r *http.Request) 
     w.WriteHeader(http.StatusBadRequest)
     return
   }
+  response := &api.Response{
+    Messages: []string{fmt.Sprintf("Delete comment %d successful", commentID)},
+  }
+  w.Header().Set("Content-Type", "application/json")
+  json.NewEncoder(w).Encode(response)
 }

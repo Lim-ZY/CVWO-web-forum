@@ -66,6 +66,7 @@ func (h *PostHandler) Create(w http.ResponseWriter, r *http.Request) {
     Payload: api.Payload{
       Data: res,
     },
+    Messages: []string{fmt.Sprintf("Create post %s successful", post.Name)},
   }
   w.WriteHeader(http.StatusCreated)
   w.Header().Set("Content-Type", "application/json")
@@ -92,6 +93,7 @@ func (h *PostHandler) List(w http.ResponseWriter, r *http.Request) {
     Payload: api.Payload{
       Data: jsonData,
     },
+    Messages: []string{"List posts successful"},
   }
   w.Header().Set("Content-Type", "application/json")
   json.NewEncoder(w).Encode(response)
@@ -133,6 +135,7 @@ func (h *PostHandler) UpdateByID(w http.ResponseWriter, r *http.Request) {
     Payload: api.Payload{
       Data: res,
     },
+    Messages: []string{fmt.Sprintf("Update post %s successful", updatedPost.Name)},
   }
   w.Header().Set("Content-Type", "application/json")
   json.NewEncoder(w).Encode(response)
@@ -146,4 +149,9 @@ func (h *PostHandler) DeleteByID(w http.ResponseWriter, r *http.Request) {
     w.WriteHeader(http.StatusBadRequest)
     return
   }
+  response := &api.Response{
+    Messages: []string{fmt.Sprintf("Delete post %d successful", postID)},
+  }
+  w.Header().Set("Content-Type", "application/json")
+  json.NewEncoder(w).Encode(response)
 }

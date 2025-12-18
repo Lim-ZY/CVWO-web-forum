@@ -62,6 +62,7 @@ func (h *TopicHandler) Create(w http.ResponseWriter, r *http.Request) {
     Payload: api.Payload{
       Data: res,
     },
+    Messages: []string{fmt.Sprintf("Create topic %s successful", topic.Name)},
   }
   w.WriteHeader(http.StatusCreated)
   w.Header().Set("Content-Type", "application/json")
@@ -85,6 +86,7 @@ func (h *TopicHandler) List(w http.ResponseWriter, r *http.Request) {
     Payload: api.Payload{
       Data: jsonData,
     },
+    Messages: []string{"List topics successful"},
   }
   w.Header().Set("Content-Type", "application/json")
   json.NewEncoder(w).Encode(response)
@@ -126,6 +128,7 @@ func (h *TopicHandler) UpdateByID(w http.ResponseWriter, r *http.Request) {
     Payload: api.Payload{
       Data: res,
     },
+    Messages: []string{fmt.Sprintf("Update topic %s successful", updatedTopic.Name)},
   }
   w.Header().Set("Content-Type", "application/json")
   json.NewEncoder(w).Encode(response)
@@ -139,4 +142,9 @@ func (h *TopicHandler) DeleteByID(w http.ResponseWriter, r *http.Request) {
     w.WriteHeader(http.StatusBadRequest)
     return
   }
+  response := &api.Response{
+    Messages: []string{fmt.Sprintf("Delete topic %d successful", id)},
+  }
+  w.Header().Set("Content-Type", "application/json")
+  json.NewEncoder(w).Encode(response)
 }
