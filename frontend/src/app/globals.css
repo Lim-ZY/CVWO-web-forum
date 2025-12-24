@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --desk: #e5e0d8;
+  --paper: #f4f1ea;
+  --accent: #8c4b4b;
+  --ink: #3d3d3d;
+  --dark-paper: #2d2a22;
+  --dark-desk: #1a1814;
+  --dark-accent: #b37700;
+  --dark-ink: #e8c547;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-desk: var(--desk);
+  --color-paper: var(--paper);
+  --color-accent: var(--accent);
+  --color-ink: var(--ink);
+  --color-dark-desk: var(--dark-desk);
+  --color-dark-paper: var(--dark-paper);
+  --color-dark-accent: var(--dark-accent);
+  --color-dark-ink: var(--dark-ink);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--desk);
+  color: var(--paper);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer components {
+  .card {
+    @apply shadow-lg rounded-lg p-2 mb-2 w-full max-w-xl bg-paper hover:bg-paper/50 dark:bg-dark-paper dark:hover:bg-dark-paper/70;
+  }
+}
