@@ -8,6 +8,7 @@ type Topic struct {
   CreationTime    time.Time  `json:"creation_time"`
   CreatedBy       string  `json:"created_by"`
   Description     string  `json:"description"`
+  PostCount       int     `json:"post_count"`
 }
 
 type Post struct {
@@ -18,6 +19,7 @@ type Post struct {
   RelatedTopicID  int     `json:"related_topic_id"`
   Content         string  `json:"content"`
   Votes           int     `json:"votes"`
+  TopicName       string  `json:"topic_name"`
 }
 
 type Comment struct {

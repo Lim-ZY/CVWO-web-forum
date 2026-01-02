@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-desk font-sans dark:bg-dark-desk">
+    <div className="flex min-h-screen items-center justify-center bg-desk dark:bg-dark-desk">
       <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-dark-paper sm:items-start">
         <Image
           className="dark:invert"
@@ -21,18 +21,7 @@ export default function Home() {
           </p>
         </div>
         <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-paper transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
+          <a className="buttonOutline" href="/">
             Login
           </a>
         </div>

@@ -32,7 +32,18 @@ func GetDB(ctx context.Context) (*Database, error) {
 }
 
 func (db *Database) GetTopics() ([]model.Topic, error) {
-  rows, err := db.Pool.Query(db.Ctx, "SELECT * FROM topics")
+  q := `SELECT 
+          t.id,
+          t.name,
+          t.creation_time,
+          t.created_by,
+          t.description,
+          COUNT(p.id) as post_count
+        FROM topics t
+        LEFT JOIN posts p ON t.id = p.related_topic_id
+        GROUP BY t.id, t.name, t.creation_time, t.created_by, t.description
+        ORDER BY t.creation_time DESC`
+  rows, err := db.Pool.Query(db.Ctx, q)
   if err != nil {
     return nil, fmt.Errorf("Error querying topics: %w", err)
   }
@@ -41,7 +52,7 @@ func (db *Database) GetTopics() ([]model.Topic, error) {
   topics := []model.Topic{}
   for rows.Next() {
     var t model.Topic
-    err := rows.Scan(&t.ID, &t.Name, &t.CreationTime, &t.CreatedBy, &t.Description)
+    err := rows.Scan(&t.ID, &t.Name, &t.CreationTime, &t.CreatedBy, &t.Description, &t.PostCount)
     if err != nil {
       return nil, fmt.Errorf("Error scanning rows: %w", err)
     }
@@ -54,7 +65,7 @@ func (db *Database) GetTopics() ([]model.Topic, error) {
   return topics, nil
 }
 
-func (db *Database) InsertTopic(topic model.Topic) error {
+func (db *Database) InsertTopic(topic *model.Topic) error {
   q := `INSERT INTO topics (name, creation_time, created_by, description) 
         VALUES ($1, $2, $3, $4) 
         RETURNING id`
@@ -104,7 +115,19 @@ func (db *Database) FindTopicByID(id int) (*model.Topic, error) {
 }
 
 func (db *Database) GetPosts(topicID int) ([]model.Post, error) {
-  q := `SELECT * FROM posts WHERE related_topic_id = $1`
+  q := `SELECT 
+          p.id,
+          p.name,
+          p.creation_time,
+          p.created_by,
+          p.related_topic_id,
+          p.content,
+          p.votes,
+          t.name as topic_name
+        FROM posts p
+        LEFT JOIN topics t ON p.related_topic_id = t.id
+        WHERE related_topic_id = $1
+        ORDER BY p.creation_time DESC`
   rows, err := db.Pool.Query(db.Ctx, q, topicID)
   if err != nil {
     return nil, fmt.Errorf("Error querying posts: %w", err)
@@ -114,7 +137,7 @@ func (db *Database) GetPosts(topicID int) ([]model.Post, error) {
   posts := []model.Post{}
   for rows.Next() {
     var p model.Post
-    err := rows.Scan(&p.ID, &p.Name, &p.CreationTime, &p.CreatedBy, &p.RelatedTopicID, &p.Content, &p.Votes)
+    err := rows.Scan(&p.ID, &p.Name, &p.CreationTime, &p.CreatedBy, &p.RelatedTopicID, &p.Content, &p.Votes, &p.TopicName)
     if err != nil {
       return nil, fmt.Errorf("Error scanning rows: %w", err)
     }
@@ -124,6 +147,16 @@ func (db *Database) GetPosts(topicID int) ([]model.Post, error) {
   if err = rows.Err(); err != nil {
     return nil, fmt.Errorf("Error iterating rows: %w", err)
   }
+
+  if len(posts) == 0 {
+    t, _ := db.FindTopicByID(topicID)
+    p := model.Post{
+      ID: -1,
+      TopicName: t.Name,
+    }
+    posts = append(posts, p)
+  }
+
   return posts, nil
 }
 
@@ -137,7 +170,7 @@ func (db *Database) GetPostByID(postID int) (*model.Post, error) {
   return &p, nil
 }
 
-func (db *Database) InsertPost(post model.Post) error {
+func (db *Database) InsertPost(post *model.Post) error {
   q := `INSERT INTO posts (name, creation_time, created_by, related_topic_id, content) 
         VALUES ($1, $2, $3, $4, $5) 
         RETURNING id`

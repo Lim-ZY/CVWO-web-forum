@@ -44,7 +44,7 @@ func (h *TopicHandler) Create(w http.ResponseWriter, r *http.Request) {
     Description:  body.Description,
   }
 
-  err = h.DB.InsertTopic(topic)
+  err = h.DB.InsertTopic(&topic)
   if err != nil {
     fmt.Printf("Failed to insert: %v\n", err)
     w.WriteHeader(http.StatusInternalServerError)

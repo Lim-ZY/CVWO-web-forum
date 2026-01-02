@@ -15,15 +15,22 @@ export default async function Topics() {
   const topics = result.payload.data;
 
   return (
-    <div className="flex min-h-screen flex-col flex-grow items-center text-ink dark:text-dark-ink">
-      <strong><h1 className="mb-4 text-xl"> Topics </h1></strong>
-      <ul>
-        {topics.map((t: Topic) => (
-          <li key={t.id}>
-            <TopicCard topic={t} />
-          </li>
-        ))}
-      </ul>
-    </div>
+    <>
+      <div className="flex min-h-screen justify-center py-6 px-0">
+        <div className="flex flex-col w-11/12 items-center">
+          <div className="mb-4 text-center text-ink dark:text-dark-ink">
+            <strong><h1 className="text-4xl"> Topics </h1></strong>
+            <h2 className="italic text-md"> Pick a mailbox to read letters! </h2>
+          </div>
+
+          <div className="flex grid lg:grid-cols-3 sm:grid-cols-2 gap-6">
+            {topics.map((t: Topic) => (<TopicCard key={t.id} topic={t} />))}
+          </div>
+          <a className="buttonSolid mt-4" href="/t/create">
+            Create Topic
+          </a>
+        </div>
+      </div>
+    </>
   );
 }

@@ -48,7 +48,7 @@ func (h *PostHandler) Create(w http.ResponseWriter, r *http.Request) {
     Content:        body.Content,
   }
 
-  err = h.DB.InsertPost(post)
+  err = h.DB.InsertPost(&post)
   if err != nil {
     fmt.Println("Failed to insert post: %v", err)
     w.WriteHeader(http.StatusInternalServerError)

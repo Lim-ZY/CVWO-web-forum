@@ -1,6 +1,7 @@
 import React from "react";
 import PostCard from "@/components/PostCard/PostCard";
 import CommentCard from "@/components/CommentCard/CommentCard";
+import Header from "@/components/Post/LetterHeader";
 
 interface ApiResponse {
   payload: {
@@ -36,22 +37,36 @@ export default async function PostView({params}: {params: Promise<{ topicID: str
   }
 
   return (
-    <div className="flex min-h-screen flex-col flex-grow items-center text-ink dark:text-dark-ink">
-      <strong><h1 className="mb-4 text-xl"> Topic {topicID} Post {postID} </h1></strong>
-      <section className="flex flex-col items-center mb-4">
-        <h1> Post </h1>
-        <PostCard post={post} />
-      </section>
-      <section className="flex flex-col items-center mb-4">
-      <h1> Comments </h1>
-      <ul>
-        {comments.map((c: Comment) => (
-          <li key={c.id}>
-            <CommentCard comment={c} />
-          </li>
-        ))}
-      </ul>
-      </section>
+    <>
+    <div className="flex px-6 py-6 justify-center">
+      <div className="flex w-11/12">
+        {/* Left Content */}
+        <div className="relative flex min-h-screen w-9/12 items-center mr-6 bg-paper">
+          <div className="absolute top-2 flex flex-col items-center pl-8">
+            <Header post={post} />
+            <div className="flex flex-col flex-grow min-w-full items-start text-ink dark:text-dark-ink bg-paper">
+              <section className="flex flex-col mb-4">
+                <h1>{post.content}</h1>
+                <h1 className="buttonSolid">Votes: {post.votes} </h1>
+              </section>
+              <section className="flex flex-col items-center mb-4">
+              <h1> Comments </h1>
+              <ul>
+                {comments.map((c: Comment) => (
+                  <li key={c.id}>
+                    <CommentCard comment={c} />
+                  </li>
+                ))}
+              </ul>
+              </section>
+            </div>
+          </div>
+        </div>
+        {/* Right Content */}
+        <div className="flex flex-col flex-grow bg-accent border-4 border-red">
+        </div>
+      </div>
     </div>
+    </>
   );
 }
