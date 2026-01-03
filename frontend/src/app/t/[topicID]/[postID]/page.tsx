@@ -1,7 +1,16 @@
 import React from "react";
+import TopicCard from "@/components/TopicCard/TopicCard";
 import PostCard from "@/components/PostCard/PostCard";
-import CommentCard from "@/components/CommentCard/CommentCard";
-import Header from "@/components/Post/LetterHeader";
+import CommentCard from "@/components/Post/CommentCard";
+import Letter from "@/components/Post/Letter";
+
+interface ApiTopicResponse {
+  payload: {
+    data: Topic;
+  };
+  messages: string[];
+  errorCode: number;
+}
 
 interface ApiResponse {
   payload: {
@@ -22,6 +31,9 @@ interface ApiResponse {
 
 export default async function PostView({params}: {params: Promise<{ topicID: string, postID: string }>}) {
   const { topicID, postID } = await params;
+  const topicResponse = await fetch(`http://localhost:8000/t${topicID}`);
+  const topicResult : ApiTopicResponse = await topicResponse.json();
+  const topic : Topic = topicResult.payload.data;
   const response = await fetch(`http://localhost:8000/t/${topicID}/${postID}`);
   const result: ApiResponse = await response.json();
   const data = result.payload.data;
@@ -41,29 +53,22 @@ export default async function PostView({params}: {params: Promise<{ topicID: str
     <div className="flex px-6 py-6 justify-center">
       <div className="flex w-11/12">
         {/* Left Content */}
-        <div className="relative flex min-h-screen w-9/12 items-center mr-6 bg-paper">
-          <div className="absolute top-2 flex flex-col items-center pl-8">
-            <Header post={post} />
-            <div className="flex flex-col flex-grow min-w-full items-start text-ink dark:text-dark-ink bg-paper">
-              <section className="flex flex-col mb-4">
-                <h1>{post.content}</h1>
-                <h1 className="buttonSolid">Votes: {post.votes} </h1>
-              </section>
-              <section className="flex flex-col items-center mb-4">
-              <h1> Comments </h1>
-              <ul>
-                {comments.map((c: Comment) => (
-                  <li key={c.id}>
-                    <CommentCard comment={c} />
-                  </li>
-                ))}
-              </ul>
-              </section>
+        <div className="flex flex-col min-h-screen w-9/12 mr-6">
+          {/* Letter */}
+          <Letter post={post} />
+          {/* Replies */}
+          <div className="flex flex-col flex-grow min-w-full">
+            <div className="mb-4">
+              <h1 className="text-xl"> Replies </h1>
+            </div>
+            <div className="ml-10">
+              {comments.map((c: Comment) => ( <CommentCard comment={c} key={c.id} /> ))}
             </div>
           </div>
         </div>
         {/* Right Content */}
-        <div className="flex flex-col flex-grow bg-accent border-4 border-red">
+        <div className="flex flex-col flex-grow">
+          <TopicCard topic={topic}/>
         </div>
       </div>
     </div>

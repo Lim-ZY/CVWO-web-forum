@@ -54,7 +54,7 @@ export default function PostCard({post}: { post: Post }) {
 
         {/* Date */}
         <div className="flex flex-col absolute top-6 right-6 w-20 h-20 border-2 border-accent rounded-full items-center justify-center text-lg">
-          <div>{date.getDay()} {date.toLocaleString('default', {month: 'short' })}</div>
+          <div>{date.getDate()} {date.toLocaleString('default', {month: 'short' })}</div>
           <div>{date.getFullYear()}</div>
         </div>
         

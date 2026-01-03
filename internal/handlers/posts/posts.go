@@ -99,6 +99,32 @@ func (h *PostHandler) List(w http.ResponseWriter, r *http.Request) {
   json.NewEncoder(w).Encode(response)
 }
 
+func (h *PostHandler) GetByID(w http.ResponseWriter, r *http.Request) {
+  postIDParam := chi.URLParam(r, "postID")
+  postID, _ := strconv.Atoi(postIDParam)
+
+  post, err := h.DB.FindPostByID(postID)
+  if err != nil {
+    fmt.Println("Failed to get post: %w", err)
+    return
+  }
+
+  jsonData, err := json.Marshal(post)
+  if err != nil {
+    fmt.Println("Failed to marshal: %w", err)
+    return
+  }
+
+  response := &api.Response{
+    Payload: api.Payload{
+      Data: jsonData,
+    },
+    Messages: []string{"Get post successful"},
+  }
+  w.Header().Set("Content-Type", "application/json")
+  json.NewEncoder(w).Encode(response)
+}
+
 func (h *PostHandler) UpdateByID(w http.ResponseWriter, r *http.Request) {
   postIDParam := chi.URLParam(r, "postID")
   postID, _ := strconv.Atoi(postIDParam)

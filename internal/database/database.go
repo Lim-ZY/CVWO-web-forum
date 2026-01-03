@@ -105,9 +105,19 @@ func (db *Database) DeleteTopicByID(id int) error {
 }
 
 func (db *Database) FindTopicByID(id int) (*model.Topic, error) {
-  q := `SELECT * FROM topics WHERE id = $1`
+  q := `SELECT 
+          t.id,
+          t.name,
+          t.creation_time,
+          t.created_by,
+          t.description,
+          COUNT(p.id) as post_count
+        FROM topics t
+        LEFT JOIN posts p ON t.id = p.related_topic_id
+        WHERE t.id = $1
+        GROUP BY t.id, t.name, t.creation_time, t.created_by, t.description`
   var t model.Topic
-  err := db.Pool.QueryRow(db.Ctx, q, id).Scan(&t.ID, &t.Name, &t.CreationTime, &t.CreatedBy, &t.Description)
+  err := db.Pool.QueryRow(db.Ctx, q, id).Scan(&t.ID, &t.Name, &t.CreationTime, &t.CreatedBy, &t.Description, &t.PostCount)
   if err != nil {
     return nil, fmt.Errorf("No topic found: %w", err)
   }

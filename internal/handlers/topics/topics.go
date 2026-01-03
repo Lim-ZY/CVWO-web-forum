@@ -92,6 +92,32 @@ func (h *TopicHandler) List(w http.ResponseWriter, r *http.Request) {
   json.NewEncoder(w).Encode(response)
 }
 
+func (h *TopicHandler) GetByID(w http.ResponseWriter, r *http.Request) {
+  topicIDParam := chi.URLParam(r, "id")
+  topicID, _ := strconv.Atoi(topicIDParam)
+
+  topic, err := h.DB.FindTopicByID(topicID)
+  if err != nil {
+    fmt.Println("Failed to get topics: %w", err)
+    return
+  }
+
+  jsonData, err := json.Marshal(topic)
+  if err != nil {
+    fmt.Println("Failed to marshal: %w", err)
+    return
+  }
+
+  response := &api.Response{
+    Payload: api.Payload{
+      Data: jsonData,
+    },
+    Messages: []string{"Get topic successful"},
+  }
+  w.Header().Set("Content-Type", "application/json")
+  json.NewEncoder(w).Encode(response)
+}
+
 func (h *TopicHandler) UpdateByID(w http.ResponseWriter, r *http.Request) {
   idParam := chi.URLParam(r, "id")
   id, _ := strconv.Atoi(idParam)
