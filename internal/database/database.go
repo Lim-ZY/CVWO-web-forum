@@ -36,12 +36,13 @@ func (db *Database) GetTopics() ([]model.Topic, error) {
           t.id,
           t.name,
           t.creation_time,
-          t.created_by,
+          u.username,
           t.description,
           COUNT(p.id) as post_count
         FROM topics t
+        INNER JOIN users u ON t.created_by = u.id
         LEFT JOIN posts p ON t.id = p.related_topic_id
-        GROUP BY t.id, t.name, t.creation_time, t.created_by, t.description
+        GROUP BY t.id, t.name, t.creation_time, u.username, t.description
         ORDER BY t.creation_time DESC`
   rows, err := db.Pool.Query(db.Ctx, q)
   if err != nil {
@@ -109,13 +110,14 @@ func (db *Database) FindTopicByID(id int) (*model.Topic, error) {
           t.id,
           t.name,
           t.creation_time,
-          t.created_by,
+          u.username,
           t.description,
           COUNT(p.id) as post_count
         FROM topics t
+        INNER JOIN users u ON t.created_by = u.id
         LEFT JOIN posts p ON t.id = p.related_topic_id
         WHERE t.id = $1
-        GROUP BY t.id, t.name, t.creation_time, t.created_by, t.description`
+        GROUP BY t.id, t.name, t.creation_time, u.username, t.description`
   var t model.Topic
   err := db.Pool.QueryRow(db.Ctx, q, id).Scan(&t.ID, &t.Name, &t.CreationTime, &t.CreatedBy, &t.Description, &t.PostCount)
   if err != nil {
@@ -129,12 +131,13 @@ func (db *Database) GetPosts(topicID int) ([]model.Post, error) {
           p.id,
           p.name,
           p.creation_time,
-          p.created_by,
+          u.username,
           p.related_topic_id,
           p.content,
           p.votes,
           t.name as topic_name
         FROM posts p
+        INNER JOIN users u ON p.created_by = u.id
         LEFT JOIN topics t ON p.related_topic_id = t.id
         WHERE related_topic_id = $1
         ORDER BY p.creation_time DESC`
@@ -171,7 +174,17 @@ func (db *Database) GetPosts(topicID int) ([]model.Post, error) {
 }
 
 func (db *Database) GetPostByID(postID int) (*model.Post, error) {
-  q := `SELECT * FROM posts WHERE id = $1`
+  q := `SELECT 
+          p.id,
+          p.name,
+          p.creation_time,
+          u.username,
+          p.related_topic_id,
+          p.content,
+          p.votes
+        FROM posts p
+        INNER JOIN users u ON p.created_by = u.id
+        WHERE p.id = $1`
   var p model.Post
   err := db.Pool.QueryRow(db.Ctx, q, postID).Scan(&p.ID, &p.Name, &p.CreationTime, &p.CreatedBy, &p.RelatedTopicID, &p.Content, &p.Votes)
   if err != nil {
@@ -230,7 +243,18 @@ func (db *Database) FindPostByID(postID int) (*model.Post, error) {
 }
 
 func (db *Database) GetComments(postID int) ([]model.Comment, error) {
-  q := `SELECT * FROM comments WHERE related_post_id = $1`
+  q := `SELECT 
+          c.id,
+          c.creation_time,
+          u.username,
+          c.related_post_id,
+          c.content,
+          c.votes
+        FROM comments c
+        INNER JOIN users u ON c.created_by = u.id
+        LEFT JOIN posts p ON c.related_post_id = p.id
+        WHERE related_post_id = $1
+        ORDER BY p.creation_time DESC`
   rows, err := db.Pool.Query(db.Ctx, q, postID)
   if err != nil {
     return nil, fmt.Errorf("Error querying comments: %w", err)
