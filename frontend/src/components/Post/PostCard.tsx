@@ -1,16 +1,6 @@
 import React from "react";
 import Link from "next/link";
-
-interface Post {
-  id: number;
-  name: string;
-  creation_time: string;
-  created_by: string;
-  related_topic_id: number;
-  content: string;
-  votes: number;
-  topic_name: string;
-}
+import { Post } from "@/types/models";
 
 export default function PostCard({post}: { post: Post }) {
   const date: Date = new Date(post.creation_time);

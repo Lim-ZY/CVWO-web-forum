@@ -1,13 +1,5 @@
 import React from "react";
-
-interface Comment {
-  id: number;
-  creation_time: string;
-  created_by: string;
-  related_post_id: number;
-  content: string;
-  votes: number;
-}
+import { Comment } from "@/types/models";
 
 export default function CommentCard({comment}: { comment: Comment }) {
   const date: Date = new Date(comment.creation_time);

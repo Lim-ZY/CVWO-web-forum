@@ -1,14 +1,6 @@
 import React from "react";
 import Link from "next/link";
-
-interface Topic {
-  id: number;
-  name: string;
-  creation_time: string;
-  created_by: string;
-  description: string;
-  post_count: number;
-}
+import { Topic } from "@/types/models";
 
 export default function TopicCard({ topic }: { topic: Topic }) {
   return (
@@ -34,7 +26,7 @@ export default function TopicCard({ topic }: { topic: Topic }) {
       <div className="bg-gradient-to-r from-stone-600 to-stone-700 px-4 py-3">
         {/* Information Plate */}
         <div className="bg-paper border-2 border-accent rounded px-2 py-2 shadow-inner min-h-[60px]">
-          <p className="text-amber-900 font-serif text-md leading-tight line-clamp-2 text-center mb-1">
+          <p className="text-amber-900 font-serif text-md line-clamp-[2] leading-tight h-10 text-center mb-1">
             {topic.description}
           </p>
           <div className="text-center pt-1 border-t border-amber-800/30 mt-1">

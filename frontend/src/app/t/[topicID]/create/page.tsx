@@ -1,7 +1,7 @@
 import React from "react";
 import Form from "next/form";
 import { redirect } from "next/navigation";
-import PostCard from "@/components/PostCard/PostCard";
+import PostCard from "@/components/Post/PostCard";
 
 interface ApiResponse {
   payload: {

@@ -1,7 +1,7 @@
 import React from "react";
 import Form from "next/form";
 import { redirect } from "next/navigation";
-import TopicCard from "@/components/TopicCard/TopicCard";
+import { Topic } from "@/types/models";
 
 interface ApiResponse {
   payload: {
@@ -11,8 +11,8 @@ interface ApiResponse {
   errorCode: number;
 }
 
-export default function Topics() {
-  async function CreateTopic(formData: FormData) {
+export default function CreateTopics() {
+  async function Create(formData: FormData) {
     'use server'
     const t: Topic = {
       name: formData.get('topic'),
@@ -36,8 +36,8 @@ export default function Topics() {
   return (
     <>
     <div className="flex flex-col flex-grow min-h-screen items-center">
-      <strong><h1 className="mb-4 text-xl text-ink"> Create Topic </h1></strong>
-      <Form action={CreateTopic} className="text-ink">
+      <strong><h1 className="my-4 text-xl text-ink"> Create Topic </h1></strong>
+      <Form action={Create} className="text-ink">
         <h2>Topic:</h2>
         <p><input type="text" name="topic" defaultValue="Topic Name"/></p>
         <h2>Description:</h2>

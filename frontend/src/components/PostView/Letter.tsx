@@ -1,5 +1,5 @@
 import React from "react";
-import PostCard from "@/components/PostCard/PostCard";
+import { Post } from "@/types/models";
 
 export default function Letter({ post }: { post: Post }) {
   const date: Date = new Date(post.creation_time);

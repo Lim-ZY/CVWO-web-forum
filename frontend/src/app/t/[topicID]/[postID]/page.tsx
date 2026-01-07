@@ -1,18 +1,11 @@
 import React from "react";
-import TopicCard from "@/components/TopicCard/TopicCard";
-import PostCard from "@/components/PostCard/PostCard";
-import CommentCard from "@/components/Post/CommentCard";
-import Letter from "@/components/Post/Letter";
+import TopicCard from "@/components/Topic/TopicCard";
+import CommentCard from "@/components/PostView/CommentCard";
+import Letter from "@/components/PostView/Letter";
+import { Topic, Post } from "@/types/models";
+import { ApiResponse } from "@/types/api";
 
-interface ApiTopicResponse {
-  payload: {
-    data: Topic;
-  };
-  messages: string[];
-  errorCode: number;
-}
-
-interface ApiResponse {
+interface ApiMainResponse {
   payload: {
     data: {
       post_id: number;
@@ -32,13 +25,13 @@ interface ApiResponse {
 export default async function PostView({params}: {params: Promise<{ topicID: string, postID: string }>}) {
   const { topicID, postID } = await params;
   const topicResponse = await fetch(`http://localhost:8000/t${topicID}`);
-  const topicResult : ApiTopicResponse = await topicResponse.json();
-  const topic : Topic = topicResult.payload.data;
+  const topicResult: ApiResponse<Topic> = await topicResponse.json();
+  const topic: Topic = topicResult.payload.data;
   const response = await fetch(`http://localhost:8000/t/${topicID}/${postID}`);
-  const result: ApiResponse = await response.json();
+  const result: ApiMainResponse = await response.json();
   const data = result.payload.data;
   const comments = data.comments;
-  const post: PostCard = {
+  const post: Post = {
     id: data.post_id,
     name: data.post_name,
     creation_time: data.post_creation_time,
