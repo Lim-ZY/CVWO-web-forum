@@ -1,3 +1,14 @@
+export interface User {
+  id: number;
+  username: string;
+  creation_time: string;
+  last_active: string;
+}
+
+export interface UserRequest {
+  username: string;
+}
+
 export interface Topic {
   id: number;
   name: string;

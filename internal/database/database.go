@@ -31,6 +31,32 @@ func GetDB(ctx context.Context) (*Database, error) {
   return &Database{Pool: dbpool, Ctx: ctx}, nil
 }
 
+func (db *Database) CreateUser(user *model.User) error {
+  q := `INSERT INTO users (username) 
+        VALUES ($1)
+        RETURNING id`
+  err := db.Pool.QueryRow(db.Ctx, q, user.Username).Scan(&user.ID)
+  if err != nil {
+    return fmt.Errorf("Error creating user: %w", err)
+  }
+  return nil
+}
+
+func (db *Database) GetUser(user *model.User) error {
+  q := `SELECT 
+          u.id,
+          u.username,
+          u.creation_time,
+          u.last_active
+        FROM users u
+        WHERE u.username = $1`
+  err := db.Pool.QueryRow(db.Ctx, q, user.Username).Scan(&user.ID, &user.Username, &user.CreationTime, &user.LastActive)
+  if err != nil {
+    return fmt.Errorf("No such user: %w", err)
+  }
+  return nil
+}
+
 func (db *Database) GetTopics() ([]model.Topic, error) {
   q := `SELECT 
           t.id,

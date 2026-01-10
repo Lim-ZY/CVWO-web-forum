@@ -1,11 +1,10 @@
 package routes
 
 import (
-  "encoding/json"
-  "net/http"
+  "os"
+
   pg "github.com/lim-zy/CVWO-web-forum/internal/database"
   "github.com/lim-zy/CVWO-web-forum/internal/handlers/users"
-  "github.com/lim-zy/CVWO-web-forum/internal/handlers/root"
   "github.com/lim-zy/CVWO-web-forum/internal/handlers/topics"
   "github.com/lim-zy/CVWO-web-forum/internal/handlers/posts"
   "github.com/lim-zy/CVWO-web-forum/internal/handlers/postview"
@@ -16,14 +15,14 @@ func GetRoutes(db *pg.Database) func(r chi.Router) {
   topicHandler := &topics.TopicHandler{DB: db}
   postHandler := &posts.PostHandler{DB: db}
   viewHandler := &postview.ViewHandler{DB: db}
+  userHandler := &users.UserHandler{DB: db, 
+                                    CookieSecret: os.Getenv("JWT_SECRET"), 
+                                    CookieName: os.Getenv("COOKIE_NAME")}
 
   return func(r chi.Router) {
-    r.Get("/users", func(w http.ResponseWriter, req *http.Request) {
-      response, _ := users.HandleList(w, req)
-      w.Header().Set("Content-Type", "application/json")
-      json.NewEncoder(w).Encode(response)
-    })
-    r.Get("/", root.BasicHandler)
+    r.Post("/login", userHandler.Login)
+    r.Get("/user", userHandler.GetUser)
+    r.Post("/logout", userHandler.Logout)
     r.Get("/t", topicHandler.List)
     r.Get("/t{id}", topicHandler.GetByID)
     r.Post("/t", topicHandler.Create)

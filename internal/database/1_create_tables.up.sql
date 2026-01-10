@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS users ( 
   id SERIAL PRIMARY KEY,
   username TEXT NOT NULL UNIQUE,
-  created_time TIMESTAMP DEFAULT NOW(),
+  creation_time TIMESTAMP DEFAULT NOW(),
   last_active TIMESTAMP DEFAULT NOW()
 ); 
 

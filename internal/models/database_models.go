@@ -2,6 +2,13 @@ package models
 
 import "time"
 
+type User struct {
+	ID              int     `json:"id"`
+	Username        string  `json:"username"`
+  CreationTime    time.Time  `json:"creation_time"`
+  LastActive      time.Time  `json:"last_active"`
+}
+
 type Topic struct {
   ID              int     `json:"id"`
   Name            string  `json:"name"`

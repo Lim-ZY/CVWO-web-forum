@@ -1,30 +1,60 @@
+"use client"
 import Image from "next/image";
+import Form from "next/form";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { UserRequest } from "@/types/models";
 
 export default function Home() {
+  const [loginFail, setLoginFail] = useState(false);
+  const router = useRouter();
+
+  const Login = async (formData: FormData) => {
+    const username: string = formData.get('username')?.toString().trim() || "";
+    const req: UserRequest = {
+      username: username,
+    };
+    const response = await fetch("http://localhost:8000/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: 'include',
+      body: JSON.stringify(req),
+    });
+    if (response.ok) {
+      router.push(`/t`);
+    } else {
+      setLoginFail(true);
+    }
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-desk dark:bg-dark-desk mt-4">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-dark-paper sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-ink dark:text-dark-ink">
-            Login Page
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-ink dark:text-dark-ink">
-            Login Stuff
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a className="buttonOutline" href="/">
-            Login
-          </a>
-        </div>
+      <main className="flex flex-col min-h-screen w-full max-w-3xl items-center justify-between py-32 px-16 bg-paper dark:bg-dark-paper sm:items-start">
+        <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-ink dark:text-dark-ink">
+          Login
+        </h1>
+        <Form action={Login} className="flex flex-col items-center gap-30 text-center sm:items-start sm:text-left">
+          <div className="max-w-md">
+            <label className="text-lg leading-8">Username: </label>
+            <input 
+              type="text" 
+              name="username" 
+              className="border border-ink shadow-sm rounded-lg mb-4 px-2"
+              required>
+            </input>
+            <div className="text-sm mb-4">
+              <p>Username is required to access Letters.</p>
+              <p>New to Letters? Create a username.</p>
+              <p>Returning? Use the same username.</p>
+            </div>
+            <button type="submit" className="buttonOutline text-md">Login</button>
+          </div>
+        </Form>
+        {
+          loginFail ? <p className="text-red-500">Login failed. Please try again</p> : <p></p>
+        }
       </main>
     </div>
   );
